@@ -205,9 +205,9 @@ function updateUI() {
         //Room admin
         copyright(false);
         showControls(false);
-        resetJoystick();
         if (!getByDataHook('store')) createStoreButton();
         setupGameUI();
+        resetJoystick();
     } else if (body.querySelector('.room-link-view')) {
         showControls(false);
         if (!getByDataHook('share')) createShareButton();
@@ -439,8 +439,8 @@ function updateControlsOptions(w, m, o, f=false) {
     }
     localStorage.setItem("controls", JSON.stringify([w, m, o]))
     controlsHandler.innerHTML = constrolsStyleBase.replace(/CONTROLS_WIDTH/g, w.toString()).replace(/CONTROLS_MARGIN/g, m.toString()).replace(/CONTROLS_OPACITY/g, o.toString()).replace(/KICK_OPACITY/g, (o / 2).toString());
-    resetJoystick();
     updateControlsSettingsNumbers();
+    resetJoystick();
 }
 
 function handleTouchStart(e) {
@@ -550,7 +550,7 @@ function setupControls() {
 
     inputOptionsHandler.setAttribute("class", "input-options");
     inputOptionsHandler.setAttribute("hidden","")
-    inputOptionsHandler.innerHTML = '<div class="dialog settings-view" style="margin-top:5px;height:min-content"><h1>Controls</h1><button data-hook="closeinput" style="position:absolute;top:12px;right:10px">Back</button><div class="tabcontents"><div class="section selected"><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Size</div><div style="width:40px">0</div><input class="slider" type="range" min="10" max="30" step="0.01"></div><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Margin</div><div style="width:40px">0</div><input class="slider" type="range" min="0" max="15" step="0.01"></div><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Opacity</div><div style="width:40px">0</div><input class="slider" type="range" min="0.2" max="1" step="0.01"></div></div></div></div>';
+    inputOptionsHandler.innerHTML = '<div class="dialog settings-view" style="height:min-content"><h1>Controls</h1><button data-hook="closeinput" style="position:absolute;top:12px;right:10px">Back</button><div class="tabcontents"><div class="section selected"><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Size</div><div style="width:45px">0</div><input class="slider" type="range" min="10" max="30" step="0.01"></div><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Margin</div><div style="width:45px">0</div><input class="slider" type="range" min="0" max="15" step="0.01"></div><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Opacity</div><div style="width:45px">0</div><input class="slider" type="range" min="0.2" max="1" step="0.01"></div></div></div></div>';
     body.parentNode.appendChild(inputOptionsHandler);
     body.parentNode.querySelector('[data-hook="closeinput"]').addEventListener("click", function(){inputOptionsHandler.setAttribute("hidden","");showControls(false);});
     inputOptionsHandler.querySelectorAll(".option-row")[0].children[2].addEventListener("input", onControlsSettingsInput)
