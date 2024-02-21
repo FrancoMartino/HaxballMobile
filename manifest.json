@@ -1,0 +1,28 @@
+{
+	"manifest_version": 3,
+	"name": "Haxball All-in-one Tool",
+	"version": "0.4.7",
+	"author": "xenon",
+	"description": "Tools for searching rooms, auto refreshing and joining rooms, admin kick/ban shortcuts, and local-muting of other players",
+	"content_scripts": [
+		{
+			"matches": [
+				"https://*.haxball.com/play*"
+			],
+			"js": [
+				"content.js"
+			],
+			"run_at": "document_idle"
+		}
+	],
+	"action": {
+		"default_icon": "icon.png"
+	},
+	"icons": {
+		"48": "icon.png"
+	},
+	"permissions": [
+		"notifications",
+		"storage"
+	]
+}
