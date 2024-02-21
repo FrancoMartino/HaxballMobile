@@ -1,5 +1,5 @@
 document.head.appendChild(Object.assign(document.createElement("style"), { innerHTML: "#thumb,body{touch-action:none}body{user-select:none;height:100%}@media only screen and (max-device-width:480px){body{touch-action:manipulation}}.header,.rightbar{display:none!important}.rounded{border:none;border-radius:50%}[view|=hidden]{display:none}[view|=visible]{display:flex;justify-content:center;align-items:center}[float]{position:absolute}svg{fill:#ecf0f3cc;width:30px;height:auto}#kick svg{width:50%}" }));
-document.querySelector('.gameframe').contentWindow.document.head.appendChild(Object.assign(document.createElement("style"), { innerHTML: ".room-view,.roomlist-view{height:100%;margin-top:0}.game-view>.top-section,.room-view{margin-top:0}.settings-view{width:100%;max-height:none}.game-view>[data-hook=popups]{background-color:#1a212585}.disconnected-view .dialog,.disconnected-view .room-view>.container{width:450px}.create-room-view>.dialog,.room-view.create-room-view>.container{max-width:450px;width:100%}body{background:#1a2125}[data-hook=leave-btn]{background:#c13535!important}.file-btn,[data-hook=rec-btn]{display:none!important}h1{text-align:center}.room-view>.container>.header-btns{bottom:0;right:10px;top:auto}.room-view>.container{max-width:none;max-height:max-content}.room-view{position:absolute;width:100%}.roomlist-view>.dialog{max-width:max-content;max-height:max-content}.game-state-view .bar>.scoreboard{display:flex;align-items:center;margin-right:50px}.chatbox-view{position:absolute;left:15px;margin:0;top:10px;width:30%;pointer-events:none;font-size:1rem;display:contents}.chatbox-view-contents{flex-direction:column-reverse;background:0 0;pointer-events:none}.chatbox-view-contents>.input{margin-bottom:10px;pointer-events:auto}.chatbox-view-contents>.log{flex-direction:column;pointer-events:none;overflow-y:scroll;scrollbar-width:none}.settings-view .section.selected{display:flex;align-items:center}.log-contents{display:flex;flex-direction:column-reverse;text-shadow:1px 1px 5px #000000cc}.fade-out{opacity:0;transition:opacity 10s ease-out}thead tr{display:table-row!important}svg{width: 1em}" }));
+document.querySelector('.gameframe').contentWindow.document.head.appendChild(Object.assign(document.createElement("style"), { innerHTML: ".room-view,.roomlist-view{height:100%;margin-top:0}.game-view>.top-section,.room-view{margin-top:0}.settings-view{width:100%;max-height:none}.game-view>[data-hook=popups]{background-color:#1a212585}.disconnected-view .dialog,.disconnected-view .room-view>.container{width:450px}.create-room-view>.dialog,.room-view.create-room-view>.container{max-width:450px;width:100%}body{background:#1a2125}[data-hook=leave-btn]{background:#c13535!important}.file-btn,[data-hook=rec-btn]{display:none!important}h1{text-align:center}.room-view>.container>.header-btns{bottom:0;right:10px;top:auto}.room-view>.container{max-width:none;max-height:max-content}.room-view{position:absolute;width:100%}.roomlist-view>.dialog{max-width:max-content;max-height:max-content}.game-state-view .bar>.scoreboard{display:flex;align-items:center;margin-right:50px}.chatbox-view{position:absolute;left:15px;margin:0;top:10px;width:30%;pointer-events:none;font-size:1rem;display:contents}.chatbox-view-contents{flex-direction:column-reverse;background:0 0;pointer-events:none}.chatbox-view-contents>.input{margin-bottom:10px;pointer-events:auto}.chatbox-view-contents>.log{flex-direction:column;pointer-events:none;overflow-y:scroll;scrollbar-width:none}.settings-view .section.selected{display:flex;align-items:center}.log-contents{display:flex;flex-direction:column-reverse;text-shadow:1px 1px 5px #000000cc}.fade-out{opacity:0;transition:opacity 10s ease-out}thead tr{display:table-row!important}svg{width: 1em}.input-options{position: absolute;width: 100%;height: 100%;z-index: 20;background-color: #1a2125;}" }));
 
 ///////////////////////////////////////// CONSTANTS /////////////////////////////////////////
 let gameFrame = document.querySelector('.gameframe').contentWindow;
@@ -40,7 +40,7 @@ const tips = [
     "Tip: have fun and enjoy the game; a positive attitude enhances performance."
 ];
 
-const constrolsStyleBase = "#joystick,#kick{z-index:100;bottom:CONTROLS_MARGINpx}.neo{opacity:CONTROLS_OPACITY;background-color:#c2c2c255;box-shadow:6px 6px 10px 0 #a5abb133,-5px -5px 9px 0 #a5abb133;color:#dedede55;font-weight:bolder;font-size:1.5rem}.sizer{width:CONTROLS_WIDTHpx;height:CONTROLS_WIDTHpx}#joystick{left:CONTROLS_MARGINpx;overflow:visible}#thumb{width:40%;height:40%;background-color:#ecf0f3cc}#kick{right:CONTROLS_MARGINpx}button.neo:active{opacity:KICK_OPACITY}";
+const constrolsStyleBase = "#joystick,#kick{z-index:100;bottom:CONTROLS_MARGINvw}.neo{opacity:CONTROLS_OPACITY;background-color:#c2c2c255;box-shadow:6px 6px 10px 0 #a5abb133,-5px -5px 9px 0 #a5abb133;color:#dedede55;font-weight:bolder;font-size:1.5rem}.sizer{width:CONTROLS_WIDTH%;aspect-ratio: 1 / 1;}#joystick{left:CONTROLS_MARGIN%;overflow:visible}#thumb{width:40%;height:40%;background-color:#ecf0f3cc}#kick{right:CONTROLS_MARGIN%}button.neo:active{opacity:KICK_OPACITY}";
 
 const countryFilterHandler = document.createElement('style');
 
@@ -49,6 +49,8 @@ const controlsHandler = document.createElement('style');
 const copyrightHandler = document.createElement("span");
 
 const aboutHandler = document.createElement("div");
+
+const inputOptionsHandler = document.createElement("div");
 
 ///////////////////////////////////////// VARIABLES /////////////////////////////////////////
 
@@ -135,10 +137,10 @@ function searchRoomlist() {
     const rows = body.querySelectorAll('tr');
     rows.forEach(row => {
         const spanName = row.querySelector('span[data-hook="name"]');
-        if(spanName && !spanName.textContent.toLowerCase().includes(searchValue)){
-        row.style.display = 'none'}
-        else{
-          row.removeAttribute("style");
+        if (spanName && !spanName.textContent.toLowerCase().includes(searchValue)) {
+            row.style.display = 'none'
+        } else {
+            row.removeAttribute("style");
         }
     });
 }
@@ -185,6 +187,9 @@ function updateUI() {
     } else if (body.querySelector('.settings-view')) {
         //Settings
         copyright(false);
+        if(inputOptionsHandler.getAttribute("hidden") != null){
+          showControls(false);
+        }
         if (!getByDataHook('newinputbtn')) createInputButton();
     } else if (body.querySelector('.g-recaptcha-response')) {
         //Captha
@@ -201,6 +206,7 @@ function updateUI() {
         copyright(false);
         showControls(false);
         resetJoystick();
+        if (!getByDataHook('store')) createStoreButton();
         setupGameUI();
     } else if (body.querySelector('.room-link-view')) {
         showControls(false);
@@ -214,6 +220,7 @@ function createInputButton() {
     elClone.setAttribute("data-hook", "newinputbtn")
     elClone.addEventListener("click", function() {
         showControls(true);
+        inputOptionsHandler.removeAttribute("hidden")
         resetJoystick();
     });
     el.parentNode.replaceChild(elClone, el);
@@ -226,6 +233,16 @@ function createShareButton() {
     insertAfter(getByDataHook('copy'), share);
     share.addEventListener("click", function() {
         console.log("SHARE_MESSAGE🎮⚽️ Join my Haxball Mobile room by copying and pasting the following link: " + getByDataHook('link').value)
+    });
+}
+
+function createStoreButton() {
+    let store = document.createElement("button");
+    store.setAttribute("data-hook", "store");
+    store.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 407 407" fill="white" style="height:0.85em; width: auto"><path d="M402 84 323 5c-3-3-7-5-12-5H17C8 0 0 8 0 17v373c0 9 8 17 17 17h373c9 0 17-8 17-17V96c0-4-2-9-5-12zm-101 80H67V39h234v125z"></path><path d="M214 148h43c3 0 6-2 6-6V60c0-4-3-6-6-6h-43c-3 0-6 2-6 6v82c0 4 3 6 6 6z"></path></svg> Store';
+    insertAfter(getByDataHook('rec-btn'), store);
+    store.addEventListener("click", function() {
+        prefabMessage("/store")
     });
 }
 
@@ -340,6 +357,22 @@ function setupGameUI() {
 
 ///////////////////////////////////////// CHAT /////////////////////////////////////////
 
+function prefabMessage(msg) {
+    const chatbox = body.querySelector('.chatbox-view');
+    const input = chatbox.querySelector('input');
+    input.focus();
+    input.value = msg;
+
+    input.dispatchEvent(new KeyboardEvent("keydown", {
+        key: "Enter",
+        bubbles: true,
+        cancelable: true,
+        keyCode: 13,
+        which: 13,
+    }));
+}
+
+
 function updatedChat() {
     const log = getByDataHook('log');
     const children = log.firstChild.children;
@@ -385,10 +418,29 @@ function showControls(v) {
     }
 }
 
-function updateControlsOptions(w, m, o) {
+function updateControlsSettingsNumbers(){
+    let inputs = inputOptionsHandler.querySelectorAll(".option-row");
+    inputs[0].children[1].innerHTML = inputs[0].children[2].value;
+    inputs[1].children[1].innerHTML = inputs[1].children[2].value;
+    inputs[2].children[1].innerHTML = inputs[2].children[2].value;
+}
+
+function onControlsSettingsInput(){
+  let inputs = inputOptionsHandler.querySelectorAll(".option-row");
+  updateControlsOptions(inputs[0].children[2].value, inputs[1].children[2].value, inputs[2].children[2].value)
+}
+
+function updateControlsOptions(w, m, o, f=false) {
+    if(f){
+      let inputs = inputOptionsHandler.querySelectorAll(".option-row");
+      inputs[0].children[2].value = w;
+      inputs[1].children[2].value = m;
+      inputs[2].children[2].value = o;
+    }
     localStorage.setItem("controls", JSON.stringify([w, m, o]))
     controlsHandler.innerHTML = constrolsStyleBase.replace(/CONTROLS_WIDTH/g, w.toString()).replace(/CONTROLS_MARGIN/g, m.toString()).replace(/CONTROLS_OPACITY/g, o.toString()).replace(/KICK_OPACITY/g, (o / 2).toString());
     resetJoystick();
+    updateControlsSettingsNumbers();
 }
 
 function handleTouchStart(e) {
@@ -495,6 +547,16 @@ function kick(str) {
 function setupControls() {
     controlsHandler.name = "stylesheet";
     document.head.appendChild(controlsHandler);
+
+    inputOptionsHandler.setAttribute("class", "input-options");
+    inputOptionsHandler.setAttribute("hidden","")
+    inputOptionsHandler.innerHTML = '<div class="dialog settings-view" style="margin-top:5px;height:min-content"><h1>Controls</h1><button data-hook="closeinput" style="position:absolute;top:12px;right:10px">Back</button><div class="tabcontents"><div class="section selected"><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Size</div><div style="width:40px">0</div><input class="slider" type="range" min="10" max="30" step="0.01"></div><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Margin</div><div style="width:40px">0</div><input class="slider" type="range" min="0" max="15" step="0.01"></div><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Opacity</div><div style="width:40px">0</div><input class="slider" type="range" min="0.2" max="1" step="0.01"></div></div></div></div>';
+    body.parentNode.appendChild(inputOptionsHandler);
+    body.parentNode.querySelector('[data-hook="closeinput"]').addEventListener("click", function(){inputOptionsHandler.setAttribute("hidden","");showControls(false);});
+    inputOptionsHandler.querySelectorAll(".option-row")[0].children[2].addEventListener("input", onControlsSettingsInput)
+    inputOptionsHandler.querySelectorAll(".option-row")[1].children[2].addEventListener("input", onControlsSettingsInput)
+    inputOptionsHandler.querySelectorAll(".option-row")[2].children[2].addEventListener("input", onControlsSettingsInput)
+
     joystick = document.createElement("div");
     joystick.setAttribute("class", "neo rounded sizer");
     joystick.setAttribute("view", "hidden");
@@ -514,18 +576,15 @@ function setupControls() {
     kickButton.addEventListener('touchstart', function() { kick('keydown') });
     kickButton.addEventListener('touchend', function() { kick('keyup') });
 
-    controlSizeSlider = document.createElement("button");
-    controlSizeSlider.setAttribute("class", "neo rounded sizer");
-    controlSizeSlider.setAttribute("view", "hidden");
-    controlSizeSlider.setAttribute("float", "");
-
     document.body.appendChild(joystick);
     document.body.appendChild(kickButton);
 
     const controlOptions = JSON.parse(localStorage.getItem("controls"));
     if (controlOptions === null) {
-        updateControlsOptions(150, 60, 1)
+        updateControlsOptions(20, 5, 1, true)
     } else {
-        updateControlsOptions(controlOptions[0], controlOptions[1], controlOptions[2])
+        updateControlsOptions(controlOptions[0], controlOptions[1], controlOptions[2], true)
     }
+
+    resetJoystick();
 }
