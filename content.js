@@ -3,7 +3,7 @@ document.querySelector('.gameframe').contentWindow.document.head.appendChild(Obj
 
 ///////////////////////////////////////// CONSTANTS /////////////////////////////////////////
 let gameFrame = document.querySelector('.gameframe').contentWindow;
-let body = gameFrame.document.body.children[0];
+let body;
 
 const tips = [
     "Tip: maintain a good defensive position.",
@@ -52,14 +52,27 @@ const aboutHandler = document.createElement("div");
 
 const inputOptionsHandler = document.createElement("div");
 
+const config = { childList: true, subtree: true };
+
 ///////////////////////////////////////// VARIABLES /////////////////////////////////////////
 
 let firstTime = true;
+let canResetJoystick = true;
 let lastMessage;
 let joystick;
 let kickButton;
 
 ///////////////////////////////////////// MAIN /////////////////////////////////////////
+
+var checkLoaderInterval = setInterval(checkLoader, 1000);
+
+function checkLoader() {
+    if (!gameFrame.document.body.querySelector(".loader-view") && gameFrame.document.body.querySelector('.choose-nickname-view')) {
+        clearInterval(checkLoaderInterval);
+        body = gameFrame.document.body.children[0];
+        init();
+    }
+}
 
 function init() {
     //Remove ads and header
@@ -74,10 +87,10 @@ function init() {
     //gameFrame.document.head.appendChild(viewportTag);
 
     setupCountryFilter();
-    setupCopyright();
     setupControls();
+    setupCopyright(true);
+
     //Mutation observer
-    const config = { childList: true, subtree: true };
     const observer = new MutationObserver(function(mutationsList, observer) {
         try {
             updateUI();
@@ -96,14 +109,13 @@ function init() {
         aboutHandler.style.display = 'flex';
         localStorage.setItem("firstTime", true)
         localStorage.setItem("view_mode", 1)
+        localStorage.setItem("resolution_scale", 0.75)
     }
     body.parentNode.querySelector('[data-hook="closeabout"]').addEventListener("click", function() {
         aboutHandler.style.display = 'none';
     });
     console.log("PAGE_LOADED")
 }
-
-init()
 
 ///////////////////////////////////////// UTILS /////////////////////////////////////////
 
@@ -167,8 +179,9 @@ function copyright(s) {
 function updateUI() {
     if (body.querySelector('.choose-nickname-view')) {
         //Chose nickname
-        copyright(true);
         showControls(false);
+        copyright(true);
+        console.log("PAGE_LOADED")
     }
     if (body.querySelector('.roomlist-view')) {
         //Roomlist
@@ -187,20 +200,34 @@ function updateUI() {
     } else if (body.querySelector('.settings-view')) {
         //Settings
         copyright(false);
-        if(inputOptionsHandler.getAttribute("hidden") != null){
-          showControls(false);
+        if (inputOptionsHandler.getAttribute("hidden") != null) {
+            showControls(false);
         }
+        try {
+            const videoSec = getByDataHook('videosec')
+            if (videoSec.children.length == 10) {
+                videoSec.lastChild.remove();
+                videoSec.lastChild.remove();
+                videoSec.lastChild.remove();
+            }
+        } catch {}
         if (!getByDataHook('newinputbtn')) createInputButton();
+        canResetJoystick = true;
     } else if (body.querySelector('.g-recaptcha-response')) {
         //Captha
         copyright(false);
         showControls(false);
         resetJoystick();
+        canResetJoystick = true;
     } else if (body.querySelector('.game-view') && !body.querySelector('.room-view')) {
         //In game
-        copyright(false);
-        showControls(true);
-        setupGameUI();
+        if (canResetJoystick) {
+            copyright(false);
+            showControls(true);
+            setupGameUI();
+            resetJoystick();
+            canResetJoystick = false;
+        }
     } else if (body.querySelector('.game-view') && !body.querySelector('.room-link-view')) {
         //Room admin
         copyright(false);
@@ -208,9 +235,11 @@ function updateUI() {
         if (!getByDataHook('store')) createStoreButton();
         setupGameUI();
         resetJoystick();
+        canResetJoystick = true;
     } else if (body.querySelector('.room-link-view')) {
         showControls(false);
         if (!getByDataHook('share')) createShareButton();
+        canResetJoystick = true;
     }
 }
 
@@ -418,24 +447,24 @@ function showControls(v) {
     }
 }
 
-function updateControlsSettingsNumbers(){
+function updateControlsSettingsNumbers() {
     let inputs = inputOptionsHandler.querySelectorAll(".option-row");
     inputs[0].children[1].innerHTML = inputs[0].children[2].value;
     inputs[1].children[1].innerHTML = inputs[1].children[2].value;
     inputs[2].children[1].innerHTML = inputs[2].children[2].value;
 }
 
-function onControlsSettingsInput(){
-  let inputs = inputOptionsHandler.querySelectorAll(".option-row");
-  updateControlsOptions(inputs[0].children[2].value, inputs[1].children[2].value, inputs[2].children[2].value)
+function onControlsSettingsInput() {
+    let inputs = inputOptionsHandler.querySelectorAll(".option-row");
+    updateControlsOptions(inputs[0].children[2].value, inputs[1].children[2].value, inputs[2].children[2].value)
 }
 
-function updateControlsOptions(w, m, o, f=false) {
-    if(f){
-      let inputs = inputOptionsHandler.querySelectorAll(".option-row");
-      inputs[0].children[2].value = w;
-      inputs[1].children[2].value = m;
-      inputs[2].children[2].value = o;
+function updateControlsOptions(w, m, o, f = false) {
+    if (f) {
+        let inputs = inputOptionsHandler.querySelectorAll(".option-row");
+        inputs[0].children[2].value = w;
+        inputs[1].children[2].value = m;
+        inputs[2].children[2].value = o;
     }
     localStorage.setItem("controls", JSON.stringify([w, m, o]))
     controlsHandler.innerHTML = constrolsStyleBase.replace(/CONTROLS_WIDTH/g, w.toString()).replace(/CONTROLS_MARGIN/g, m.toString()).replace(/CONTROLS_OPACITY/g, o.toString()).replace(/KICK_OPACITY/g, (o / 2).toString());
@@ -549,10 +578,13 @@ function setupControls() {
     document.head.appendChild(controlsHandler);
 
     inputOptionsHandler.setAttribute("class", "input-options");
-    inputOptionsHandler.setAttribute("hidden","")
+    inputOptionsHandler.setAttribute("hidden", "")
     inputOptionsHandler.innerHTML = '<div class="dialog settings-view" style="height:min-content"><h1>Controls</h1><button data-hook="closeinput" style="position:absolute;top:12px;right:10px">Back</button><div class="tabcontents"><div class="section selected"><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Size</div><div style="width:45px">0</div><input class="slider" type="range" min="10" max="30" step="0.01"></div><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Margin</div><div style="width:45px">0</div><input class="slider" type="range" min="0" max="15" step="0.01"></div><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Opacity</div><div style="width:45px">0</div><input class="slider" type="range" min="0.2" max="1" step="0.01"></div></div></div></div>';
     body.parentNode.appendChild(inputOptionsHandler);
-    body.parentNode.querySelector('[data-hook="closeinput"]').addEventListener("click", function(){inputOptionsHandler.setAttribute("hidden","");showControls(false);});
+    body.parentNode.querySelector('[data-hook="closeinput"]').addEventListener("click", function() {
+        inputOptionsHandler.setAttribute("hidden", "");
+        showControls(false);
+    });
     inputOptionsHandler.querySelectorAll(".option-row")[0].children[2].addEventListener("input", onControlsSettingsInput)
     inputOptionsHandler.querySelectorAll(".option-row")[1].children[2].addEventListener("input", onControlsSettingsInput)
     inputOptionsHandler.querySelectorAll(".option-row")[2].children[2].addEventListener("input", onControlsSettingsInput)
