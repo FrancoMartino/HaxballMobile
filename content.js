@@ -114,6 +114,7 @@ function init() {
     body.parentNode.querySelector('[data-hook="closeabout"]').addEventListener("click", function() {
         aboutHandler.style.display = 'none';
     });
+
     console.log("PAGE_LOADED")
 }
 
@@ -579,11 +580,14 @@ function setupControls() {
 
     inputOptionsHandler.setAttribute("class", "input-options");
     inputOptionsHandler.setAttribute("hidden", "")
-    inputOptionsHandler.innerHTML = '<div class="dialog settings-view" style="height:min-content"><h1>Controls</h1><button data-hook="closeinput" style="position:absolute;top:12px;right:10px">Back</button><div class="tabcontents"><div class="section selected"><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Size</div><div style="width:45px">0</div><input class="slider" type="range" min="10" max="30" step="0.01"></div><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Margin</div><div style="width:45px">0</div><input class="slider" type="range" min="0" max="15" step="0.01"></div><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Opacity</div><div style="width:45px">0</div><input class="slider" type="range" min="0.2" max="1" step="0.01"></div></div></div></div>';
+    inputOptionsHandler.innerHTML = '<div class="dialog settings-view" style="height:min-content"><h1>Controls</h1><button data-hook="closeinput" style="position:absolute;top:12px;right:10px">Back</button><div class="tabcontents"><div class="section selected"><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Size</div><div style="width:45px">0</div><input class="slider" type="range" min="10" max="30" step="0.01"></div><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Margin</div><div style="width:45px">0</div><input class="slider" type="range" min="0" max="15" step="0.01"></div><div class="option-row"><div style="margin-right:10px;flex:1;min-width:60px">Opacity</div><div style="width:45px">0</div><input class="slider" type="range" min="0.2" max="1" step="0.01"></div><br><button data-hook="resetinput">Reset</button></div></div></div>';
     body.parentNode.appendChild(inputOptionsHandler);
     body.parentNode.querySelector('[data-hook="closeinput"]').addEventListener("click", function() {
         inputOptionsHandler.setAttribute("hidden", "");
         showControls(false);
+    });
+    body.parentNode.querySelector('[data-hook="resetinput"]').addEventListener("click", function() {
+        updateControlsOptions(20, 5, 1, true)
     });
     inputOptionsHandler.querySelectorAll(".option-row")[0].children[2].addEventListener("input", onControlsSettingsInput)
     inputOptionsHandler.querySelectorAll(".option-row")[1].children[2].addEventListener("input", onControlsSettingsInput)
@@ -620,3 +624,99 @@ function setupControls() {
 
     resetJoystick();
 }
+
+
+
+
+
+
+
+
+
+
+  let previousDigitalStickState = "";
+  let previousAnalogStickState = "";
+  let isXButtonPressed = false;
+  let isSquareButtonPressed = false;
+
+  window.addEventListener("gamepadconnected", (event) => {
+    console.log("Gamepad connected:", event.gamepad);
+    checkGamepadState(event.gamepad);
+  });
+
+  window.addEventListener("gamepaddisconnected", (event) => {
+    console.log("Gamepad disconnected:", event.gamepad);
+  });
+
+  function checkGamepadState(gamepad) {
+    requestAnimationFrame(() => {
+      const axes = gamepad.axes;
+      const buttons = gamepad.buttons;
+
+      // Check the digital stick (assuming 8 positions)
+      const digitalStickState = getDigitalStickState(axes[0], axes[1]);
+      if (digitalStickState.changed) {
+        emulateKeys(digitalStickState.direction);
+        previousDigitalStickState = digitalStickState.direction;
+      }
+
+      // Check the analog stick (assuming 2 positions)
+      const analogStickState = getAnalogStickState(axes[2], axes[3]);
+      if (analogStickState.changed) {
+        emulateKeys(analogStickState.direction);
+        previousAnalogStickState = analogStickState.direction;
+      }
+
+      // Check if the X button is pressed
+      if (buttons[0].pressed && !isXButtonPressed) {
+        kick("keydown");
+        isXButtonPressed = true;
+      } else if (!buttons[0].pressed) {
+        kick("keyup");
+        isXButtonPressed = false;
+      }
+
+      // Recursively check for changes
+      checkGamepadState(navigator.getGamepads()[gamepad.index]);
+    });
+  }
+
+  function getDigitalStickState(x, y) {
+    const threshold = 0.5;
+    const centerThreshold = 0.1; // Adjust this threshold for center detection
+
+    if (Math.abs(x) < centerThreshold && Math.abs(y) < centerThreshold) {
+      return { changed: previousDigitalStickState !== "Center", direction: "Center" };
+    }
+
+    if (Math.abs(x) > threshold || Math.abs(y) > threshold) {
+      const direction = getDirection(x, y);
+      return { changed: direction !== previousDigitalStickState, direction };
+    }
+
+    return { changed: false };
+  }
+
+  function getAnalogStickState(x, y) {
+    const threshold = 0.5;
+    const centerThreshold = 0.1; // Adjust this threshold for center detection
+
+    if (Math.abs(x) < centerThreshold && Math.abs(y) < centerThreshold) {
+      return { changed: previousAnalogStickState !== "Center", direction: "Center" };
+    }
+
+    if (Math.abs(x) > threshold || Math.abs(y) > threshold) {
+      const direction = getDirection(x, y);
+      return { changed: direction !== previousAnalogStickState, direction };
+    }
+
+    return { changed: false };
+  }
+
+  function getDirection(x, y) {
+    const angle = Math.atan2(y, x);
+    const angleInDegrees = (angle >= 0 ? angle : (2 * Math.PI + angle)) * (180 / Math.PI);
+    const sector = Math.round(angleInDegrees / 45) % 8;
+    const directions = ["d", "sd", "s", "sa", "a", "aw", "w", "wd"];
+    return directions[sector];
+  }
